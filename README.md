@@ -1,0 +1,116 @@
+# WC AI Chatbot
+
+An AI-powered shopping assistant for WooCommerce. Customers can search products, get recommendations, and manage their cart through a natural chat interface — without leaving the page.
+
+Supports **Anthropic Claude** and **Moonshot AI (Kimi K2)** with real-time streaming responses.
+
+---
+
+## Features
+
+- **Natural language shopping** — customers describe what they want, the AI finds it
+- **Full cart control** — add, view, and remove items through conversation
+- **Two AI providers** — Anthropic Claude or Moonshot AI (Kimi K2), switchable from the admin
+- **Real-time streaming** — responses appear word-by-word (Moonshot provider)
+- **Agentic reasoning** — multi-step tool use: the AI can search, evaluate, and add to cart in a single message
+- **Customisable widget** — bot name, greeting message, and accent colour
+- **Optional system prompt** — inject store policies, tone guidelines, or FAQs
+
+---
+
+## Supported Models
+
+| Provider | Models |
+|---|---|
+| **Anthropic** | claude-haiku-4-5, claude-sonnet-4-6, claude-opus-4-6 |
+| **Moonshot AI** | kimi-k2-thinking-turbo *(recommended)*, kimi-k2-thinking, kimi-k2.5, moonshot-v1-auto, moonshot-v1-8k/32k/128k |
+
+---
+
+## Requirements
+
+- WordPress 6.0+
+- WooCommerce 7.0+
+- PHP 7.4+
+- An API key from [console.anthropic.com](https://console.anthropic.com) or [platform.moonshot.ai](https://platform.moonshot.ai)
+
+---
+
+## Installation
+
+1. Download `wc-ai-chatbot-1.0.0.zip` from [Releases](https://github.com/fahdi/wc-ai-chatbot/releases)
+2. In WordPress admin go to **Plugins → Add New → Upload Plugin**
+3. Upload the zip and activate
+4. Go to **Settings → AI Chatbot**
+5. Select your provider, enter your API key, save
+6. The chat widget appears on all frontend pages automatically
+
+---
+
+## Configuration
+
+| Setting | Description |
+|---|---|
+| AI Provider | Anthropic (Claude) or Moonshot AI (Kimi) |
+| API Key | Provider-specific key — never exposed to the frontend |
+| Model | Choose speed vs capability tradeoff per provider |
+| Bot Name | Displayed in the chat header |
+| Greeting Message | First message shown when the widget opens |
+| Accent Color | Widget header and button color |
+| System Prompt | Optional extra instructions injected before every conversation |
+
+---
+
+## How It Works
+
+The plugin registers two REST endpoints:
+
+- `POST /wp-json/wc-chatbot/v1/message` — standard request/response (Anthropic)
+- `POST /wp-json/wc-chatbot/v1/stream` — Server-Sent Events streaming (Moonshot)
+
+Each request runs an **agentic loop**: the AI can call WooCommerce tools multiple times before returning a final response. Tool results feed back into the next API call automatically.
+
+### Available Tools
+
+| Tool | What it does |
+|---|---|
+| `search_products` | Searches by keyword, category, and price range |
+| `get_product_details` | Returns full product data including variations and stock |
+| `add_to_cart` | Adds a product to the current session cart |
+| `view_cart` | Returns current cart items and totals |
+| `remove_from_cart` | Removes an item by cart item key |
+
+---
+
+## Development
+
+```bash
+# Install dev dependencies
+composer install
+
+# Run tests
+vendor/bin/phpunit --testdox
+```
+
+The test suite uses [PHPUnit 10](https://phpunit.de), [Brain\Monkey](https://brain-wp.github.io/BrainMonkey/) for WordPress function mocking, and [Mockery](http://docs.mockery.io) for WooCommerce object mocking.
+
+```
+36 tests, 117 assertions — all passing
+```
+
+---
+
+## External Services
+
+This plugin transmits conversation data to third-party APIs:
+
+- **Anthropic** (`api.anthropic.com`) — [Privacy Policy](https://www.anthropic.com/legal/privacy)
+- **Moonshot AI** (`api.moonshot.ai`) — [Privacy Policy](https://www.moonshot.ai/privacy)
+
+Only the current session's conversation history and relevant product data are sent. No personal customer data is transmitted unless the customer types it into the chat.
+
+---
+
+## License
+
+GPLv2 or later — see [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/licenses/gpl-2.0.html)
