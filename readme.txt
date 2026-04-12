@@ -1,0 +1,99 @@
+=== WC AI Chatbot ===
+Contributors: fahdi
+Tags: woocommerce, chatbot, ai, cart, claude, kimi, assistant, ai-assistant
+Requires at least: 6.0
+Tested up to: 6.9
+Requires PHP: 7.4
+Stable tag: 1.0.0
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+
+AI-powered shopping assistant for WooCommerce. Answers customer questions and manages the cart using Claude (Anthropic) or Kimi K2 (Moonshot AI).
+
+== Description ==
+
+WC AI Chatbot adds an intelligent shopping assistant widget to your WooCommerce store. Customers can ask questions about products, get personalised recommendations, and add items to their cart — all through a natural conversational interface.
+
+**Supported AI providers:**
+
+* **Anthropic Claude** — claude-haiku, claude-sonnet, claude-opus
+* **Moonshot AI (Kimi K2)** — kimi-k2-thinking-turbo, kimi-k2-thinking, kimi-k2.5, and Moonshot V1 models
+
+**What the chatbot can do:**
+
+* Search products by name, category, and price range
+* Show full product details including stock status, SKU, and available variations
+* Add products to the customer's cart
+* View current cart contents with totals
+* Remove items from the cart
+* Stream responses in real-time (Moonshot provider)
+
+**Requirements:**
+
+* WooCommerce 7.0 or later
+* An API key from [Anthropic](https://console.anthropic.com) or [Moonshot AI](https://platform.moonshot.ai)
+
+**External services:**
+
+This plugin sends conversation data to third-party AI APIs:
+
+* Anthropic Messages API (`api.anthropic.com`) — when the Anthropic provider is selected. [Privacy policy](https://www.anthropic.com/legal/privacy).
+* Moonshot AI API (`api.moonshot.ai`) — when the Moonshot provider is selected. [Privacy policy](https://www.moonshot.ai/privacy).
+
+Only conversation history and product data relevant to the current session are transmitted. No personal customer data is sent unless the customer types it into the chat.
+
+== Installation ==
+
+1. Upload the `wc-ai-chatbot` folder to `/wp-content/plugins/`
+2. Activate the plugin through the **Plugins** menu in WordPress
+3. Navigate to **Settings → AI Chatbot**
+4. Choose your AI provider (Anthropic or Moonshot AI)
+5. Enter your API key
+6. Configure the bot name, greeting message, and accent color
+7. Save — the chat widget will appear on all frontend pages
+
+== Frequently Asked Questions ==
+
+= Which AI provider should I use? =
+
+Both providers work well. Anthropic Claude has strong instruction-following for English-language stores. Moonshot AI (Kimi K2) supports real-time streaming responses. Choose based on your API access and cost preferences.
+
+= Does the chatbot have access to my product catalogue? =
+
+Yes. It searches products, retrieves full product details, and checks stock levels using WooCommerce's native data functions. No separate sync or index is required.
+
+= Can it actually add products to the cart? =
+
+Yes. When a customer asks to add an item, the chatbot calls WooCommerce's cart API directly within the customer's session. The cart page will reflect the changes immediately.
+
+= Is the API key stored securely? =
+
+API keys are stored in the WordPress options table using standard WordPress security practices. They are never exposed to the frontend or included in page source.
+
+= Does it support streaming responses? =
+
+Yes — streaming is available with the Moonshot AI (Kimi) provider. Responses appear word-by-word as they are generated. The Anthropic provider uses standard request/response.
+
+= What data is sent to the AI provider? =
+
+The conversation history (user messages and assistant replies) and the results of tool calls (product data, cart contents) are transmitted to the selected provider's API per session. Review the provider's privacy policy for how they handle this data.
+
+== Screenshots ==
+
+1. Chat widget on the storefront
+2. Admin settings — provider and API key configuration
+
+== Changelog ==
+
+= 1.0.0 =
+* Initial release
+* Anthropic Claude support (haiku, sonnet, opus)
+* Moonshot AI / Kimi K2 support with real-time streaming
+* WooCommerce cart integration: search, view details, add, view cart, remove
+* Customisable bot name, greeting message, and accent color
+* Optional custom system prompt
+
+== Upgrade Notice ==
+
+= 1.0.0 =
+Initial release. No upgrade steps required.
