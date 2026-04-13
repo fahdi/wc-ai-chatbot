@@ -3,7 +3,7 @@
  * Plugin Name: WC AI Chatbot
  * Plugin URI:  https://github.com/fahdi/wc-ai-chatbot
  * Description: AI-powered shopping assistant for WooCommerce — answers questions and manages the cart using Claude or Kimi K2.
- * Version:     1.0.0
+ * Version:     1.0.1
  * Author:      Fahdi Murtaza
  * Author URI:  https://github.com/fahdi
  * License:     GPL v2 or later
@@ -18,7 +18,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'WC_AI_CHATBOT_VERSION', '1.0.0' );
+define( 'WC_AI_CHATBOT_VERSION', '1.0.1' );
 define( 'WC_AI_CHATBOT_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WC_AI_CHATBOT_URL', plugin_dir_url( __FILE__ ) );
 
