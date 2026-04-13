@@ -10,7 +10,11 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 AI-powered shopping assistant for WooCommerce. Answers customer questions and manages the cart using Claude (Anthropic) or Kimi K2 (Moonshot AI).
 
+🚀 **[Try it live in WordPress Playground](https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fwordpress.org%2Fplugins%2Fwp-json%2Fplugins%2Fv1%2Fplugin%2Fwc-ai-chatbot%2Fblueprint.json%3Fzip_hash%3D27be4be624dce5f524e5529f9753bded%26type%3Dpcp)** — no install required.
+
 == Description ==
+
+🚀 **[Try it live in WordPress Playground](https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fwordpress.org%2Fplugins%2Fwp-json%2Fplugins%2Fv1%2Fplugin%2Fwc-ai-chatbot%2Fblueprint.json%3Fzip_hash%3D27be4be624dce5f524e5529f9753bded%26type%3Dpcp)** — no install required.
 
 WC AI Chatbot adds an intelligent shopping assistant widget to your WooCommerce store. Customers can ask questions about products, get personalised recommendations, and add items to their cart — all through a natural conversational interface.
 
