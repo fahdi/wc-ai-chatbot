@@ -174,6 +174,7 @@
 									bubble.textContent = 'No response received. Please try again.';
 									history.pop();
 								} else {
+									bubble.innerHTML = renderMarkdown(fullText);
 									history.push({ role: 'assistant', content: fullText });
 								}
 								break;
@@ -236,12 +237,53 @@
 
 	// ── DOM helpers ───────────────────────────────────────────────────────────
 	function appendMessage(role, text) {
-		const div = document.createElement('div');
+		const div    = document.createElement('div');
 		div.className = 'chatbot-msg ' + role;
-		div.innerHTML = '<div class="chatbot-bubble">' + esc(text) + '</div>';
+		const bubble = document.createElement('div');
+		bubble.className = 'chatbot-bubble';
+		if (role === 'bot') {
+			bubble.innerHTML = renderMarkdown(text);
+		} else {
+			bubble.textContent = text;
+		}
+		div.appendChild(bubble);
 		msgs.appendChild(div);
 		scrollToBottom();
 		return div;
+	}
+
+	// Safely render markdown links and bold from AI responses.
+	// 1. Escape all HTML first so no raw markup can slip through.
+	// 2. Convert [text](url) — same-origin URLs only — to <a> elements.
+	// 3. Convert **text** to <strong>.
+	// 4. Convert newlines to <br>.
+	function renderMarkdown(text) {
+		// Step 1: escape HTML
+		let html = String(text)
+			.replace(/&/g,  '&amp;')
+			.replace(/</g,  '&lt;')
+			.replace(/>/g,  '&gt;')
+			.replace(/"/g,  '&quot;')
+			.replace(/'/g,  '&#39;');
+
+		// Step 2: markdown links — same-origin only
+		html = html.replace(
+			/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,
+			(_, linkText, url) => {
+				try {
+					if (new URL(url).origin !== window.location.origin) return linkText;
+				} catch { return linkText; }
+				return `<a href="${url}" class="chatbot-link" target="_blank" rel="noopener">${linkText}</a>`;
+			}
+		);
+
+		// Step 3: bold
+		html = html.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+
+		// Step 4: newlines
+		html = html.replace(/\n/g, '<br>');
+
+		return html;
 	}
 
 	function appendEmptyBotBubble() {

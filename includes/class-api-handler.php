@@ -359,6 +359,12 @@ final class WC_AI_Chatbot_API_Handler {
 
 Currency: {$currency}
 
+Linking rules — follow exactly:
+- Always format product names as markdown links using the url field from tool results: [Product Name](url)
+- After a successful add_to_cart, always end your reply with these two links on the same line: [View Cart](cart_url) · [Checkout](checkout_url) — replace cart_url and checkout_url with the actual values from the tool result.
+- When the customer asks to check out or go to checkout, include: [Proceed to Checkout](checkout_url) — using the checkout_url from view_cart or add_to_cart results.
+- Only use markdown for product names and cart/checkout links — no other markdown formatting.
+
 Guidelines:
 - Always use search_products or get_product_details before recommending a product — never invent product details.
 - When a customer wants to buy something, confirm the product, then use add_to_cart.

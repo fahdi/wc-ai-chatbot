@@ -251,3 +251,16 @@
 		right:  16px;
 	}
 }
+
+/* ── In-chat links ────────────────────────────────────────────────────────── */
+.chatbot-bubble .chatbot-link {
+	color:           var(--chatbot-accent);
+	text-decoration: underline;
+	text-underline-offset: 2px;
+	font-weight:     500;
+	word-break:      break-word;
+}
+
+.chatbot-bubble .chatbot-link:hover {
+	opacity: 0.8;
+}
