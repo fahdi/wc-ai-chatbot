@@ -1,14 +1,14 @@
 <?php
 /**
  * Fired when the plugin is uninstalled.
- * Removes all options stored by WC AI Chatbot.
+ * Removes all options stored by AI Chatbot for WooCommerce.
  */
 
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
 
-$options = [
+$wc_ai_chatbot_options = [
 	'wc_ai_chatbot_provider',
 	'wc_ai_chatbot_anthropic_api_key',
 	'wc_ai_chatbot_anthropic_model',
@@ -20,6 +20,6 @@ $options = [
 	'wc_ai_chatbot_accent_color',
 ];
 
-foreach ( $options as $option ) {
-	delete_option( $option );
+foreach ( $wc_ai_chatbot_options as $wc_ai_chatbot_option ) {
+	delete_option( $wc_ai_chatbot_option );
 }

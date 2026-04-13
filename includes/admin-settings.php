@@ -7,15 +7,15 @@ function wc_ai_chatbot_settings_page(): void {
 	}
 
 	if ( isset( $_POST['wc_ai_chatbot_save'] ) && check_admin_referer( 'wc_ai_chatbot_settings' ) ) {
-		update_option( 'wc_ai_chatbot_provider',          sanitize_text_field( $_POST['provider']          ?? 'anthropic' ) );
-		update_option( 'wc_ai_chatbot_anthropic_api_key', sanitize_text_field( $_POST['anthropic_api_key'] ?? '' ) );
-		update_option( 'wc_ai_chatbot_anthropic_model',   sanitize_text_field( $_POST['anthropic_model']   ?? 'claude-haiku-4-5-20251001' ) );
-		update_option( 'wc_ai_chatbot_moonshot_api_key',  sanitize_text_field( $_POST['moonshot_api_key']  ?? '' ) );
-		update_option( 'wc_ai_chatbot_moonshot_model',    sanitize_text_field( $_POST['moonshot_model']    ?? 'kimi-k2-thinking-turbo' ) );
-		update_option( 'wc_ai_chatbot_bot_name',          sanitize_text_field( $_POST['bot_name']          ?? 'Store Assistant' ) );
-		update_option( 'wc_ai_chatbot_greeting',          sanitize_textarea_field( $_POST['greeting']      ?? 'Hi! How can I help you today?' ) );
-		update_option( 'wc_ai_chatbot_system_prompt',     sanitize_textarea_field( $_POST['system_prompt'] ?? '' ) );
-		update_option( 'wc_ai_chatbot_accent_color',      sanitize_hex_color( $_POST['accent_color']       ?? '#2563eb' ) );
+		update_option( 'wc_ai_chatbot_provider',          sanitize_text_field( wp_unslash( $_POST['provider']          ?? 'anthropic' ) ) );
+		update_option( 'wc_ai_chatbot_anthropic_api_key', sanitize_text_field( wp_unslash( $_POST['anthropic_api_key'] ?? '' ) ) );
+		update_option( 'wc_ai_chatbot_anthropic_model',   sanitize_text_field( wp_unslash( $_POST['anthropic_model']   ?? 'claude-haiku-4-5-20251001' ) ) );
+		update_option( 'wc_ai_chatbot_moonshot_api_key',  sanitize_text_field( wp_unslash( $_POST['moonshot_api_key']  ?? '' ) ) );
+		update_option( 'wc_ai_chatbot_moonshot_model',    sanitize_text_field( wp_unslash( $_POST['moonshot_model']    ?? 'kimi-k2-thinking-turbo' ) ) );
+		update_option( 'wc_ai_chatbot_bot_name',          sanitize_text_field( wp_unslash( $_POST['bot_name']          ?? 'Store Assistant' ) ) );
+		update_option( 'wc_ai_chatbot_greeting',          sanitize_textarea_field( wp_unslash( $_POST['greeting']      ?? 'Hi! How can I help you today?' ) ) );
+		update_option( 'wc_ai_chatbot_system_prompt',     sanitize_textarea_field( wp_unslash( $_POST['system_prompt'] ?? '' ) ) );
+		update_option( 'wc_ai_chatbot_accent_color',      sanitize_hex_color( wp_unslash( $_POST['accent_color']       ?? '#2563eb' ) ) );
 
 		echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Settings saved.', 'wc-ai-chatbot' ) . '</p></div>';
 	}

@@ -536,6 +536,13 @@ Guidelines:
 		$tool_buf        = [];
 		$error           = null;
 
+		/*
+		 * WordPress HTTP API ( wp_remote_post ) cannot stream Server-Sent Events —
+		 * it buffers the entire response before returning. Raw cURL is the only way
+		 * to forward SSE chunks to the browser in real-time. The non-streaming paths
+		 * in this plugin ( call_anthropic, call_moonshot ) use wp_remote_post.
+		 */
+		// phpcs:disable WordPress.WP.AlternativeFunctions.curl_curl_init,WordPress.WP.AlternativeFunctions.curl_curl_setopt_array,WordPress.WP.AlternativeFunctions.curl_curl_exec,WordPress.WP.AlternativeFunctions.curl_curl_getinfo,WordPress.WP.AlternativeFunctions.curl_curl_errno,WordPress.WP.AlternativeFunctions.curl_curl_error,WordPress.WP.AlternativeFunctions.curl_curl_close
 		$ch = curl_init( 'https://api.moonshot.ai/v1/chat/completions' );
 		curl_setopt_array( $ch, [
 			CURLOPT_POST           => true,
@@ -612,6 +619,7 @@ Guidelines:
 		}
 
 		curl_close( $ch );
+		// phpcs:enable
 
 		// Parse accumulated tool call argument JSON strings.
 		$tool_calls = [];

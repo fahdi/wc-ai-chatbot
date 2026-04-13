@@ -1,9 +1,9 @@
 <?php
 /**
- * Plugin Name: WC AI Chatbot
+ * Plugin Name: AI Chatbot for WooCommerce
  * Plugin URI:  https://github.com/fahdi/wc-ai-chatbot
  * Description: AI-powered shopping assistant for WooCommerce — answers questions and manages the cart using Claude or Kimi K2.
- * Version:     1.0.1
+ * Version:     1.0.2
  * Author:      Fahdi Murtaza
  * Author URI:  https://github.com/fahdi
  * License:     GPL v2 or later
@@ -18,7 +18,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'WC_AI_CHATBOT_VERSION', '1.0.1' );
+define( 'WC_AI_CHATBOT_VERSION', '1.0.2' );
 define( 'WC_AI_CHATBOT_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WC_AI_CHATBOT_URL', plugin_dir_url( __FILE__ ) );
 
@@ -38,19 +38,10 @@ final class WC_AI_Chatbot {
 	}
 
 	private function __construct() {
-		add_action( 'init',               [ $this, 'load_textdomain' ] );
 		add_action( 'rest_api_init',      [ $this, 'register_routes' ] );
 		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_assets' ] );
 		add_action( 'wp_footer',          [ $this, 'render_widget' ] );
 		add_action( 'admin_menu',         [ $this, 'add_admin_menu' ] );
-	}
-
-	public function load_textdomain(): void {
-		load_plugin_textdomain(
-			'wc-ai-chatbot',
-			false,
-			dirname( plugin_basename( __FILE__ ) ) . '/languages'
-		);
 	}
 
 	public function register_routes(): void {

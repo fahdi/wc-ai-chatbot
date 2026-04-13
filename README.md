@@ -1,4 +1,4 @@
-# WC AI Chatbot
+# AI Chatbot for WooCommerce
 
 [![Try it in WordPress Playground](https://img.shields.io/badge/Try%20it-WordPress%20Playground-3858e9?style=for-the-badge&logo=wordpress)](https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fwordpress.org%2Fplugins%2Fwp-json%2Fplugins%2Fv1%2Fplugin%2Fwc-ai-chatbot%2Fblueprint.json%3Fzip_hash%3D27be4be624dce5f524e5529f9753bded%26type%3Dpcp)
 
