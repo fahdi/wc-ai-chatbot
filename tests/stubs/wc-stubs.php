@@ -29,6 +29,26 @@ if ( ! function_exists( 'is_wp_error' ) ) {
     function is_wp_error( mixed $thing ): bool { return $thing instanceof WP_Error; }
 }
 
+// Gettext stubs for tests — pass through the original string.
+if ( ! function_exists( '__' ) ) {
+    function __( string $text, string $domain = '' ): string { return $text; }
+}
+if ( ! function_exists( '_e' ) ) {
+    function _e( string $text, string $domain = '' ): void { echo $text; }
+}
+if ( ! function_exists( 'esc_html__' ) ) {
+    function esc_html__( string $text, string $domain = '' ): string { return $text; }
+}
+if ( ! function_exists( 'esc_html_e' ) ) {
+    function esc_html_e( string $text, string $domain = '' ): void { echo $text; }
+}
+if ( ! function_exists( 'esc_attr__' ) ) {
+    function esc_attr__( string $text, string $domain = '' ): string { return $text; }
+}
+if ( ! function_exists( 'esc_attr_e' ) ) {
+    function esc_attr_e( string $text, string $domain = '' ): void { echo $text; }
+}
+
 // ── WooCommerce stubs ────────────────────────────────────────────────────────
 
 if ( ! class_exists( 'WC_Product' ) ) {

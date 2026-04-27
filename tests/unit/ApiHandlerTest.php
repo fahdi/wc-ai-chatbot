@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests for WC_AI_Chatbot_API_Handler.
+ * Unit tests for Mayaai_API_Handler.
  *
  * Covers:
  *  - sanitize_messages()  — input validation & sanitization
@@ -37,10 +37,10 @@ class ApiHandlerTest extends TestCase {
         parent::tearDown();
     }
 
-    private function handler(): WC_AI_Chatbot_API_Handler {
-        $ref = new ReflectionProperty( WC_AI_Chatbot_API_Handler::class, 'instance' );
+    private function handler(): Mayaai_API_Handler {
+        $ref = new ReflectionProperty( Mayaai_API_Handler::class, 'instance' );
         $ref->setValue( null, null );
-        return WC_AI_Chatbot_API_Handler::instance();
+        return Mayaai_API_Handler::instance();
     }
 
     // ── sanitize_messages ─────────────────────────────────────────────────────

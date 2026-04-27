@@ -1,6 +1,4 @@
-# AI Chatbot for WooCommerce
-
-[![Try it in WordPress Playground](https://img.shields.io/badge/Try%20it-WordPress%20Playground-3858e9?style=for-the-badge&logo=wordpress)](https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fwordpress.org%2Fplugins%2Fwp-json%2Fplugins%2Fv1%2Fplugin%2Fwc-ai-chatbot%2Fblueprint.json%3Fzip_hash%3D27be4be624dce5f524e5529f9753bded%26type%3Dpcp)
+# Maya AI Shopping Assistant for WooCommerce
 
 An AI-powered shopping assistant for WooCommerce. Customers can search products, get recommendations, and manage their cart through a natural chat interface — without leaving the page.
 
@@ -40,10 +38,10 @@ Supports **Anthropic Claude** and **Moonshot AI (Kimi K2)** with real-time strea
 
 ## Installation
 
-1. Download `wc-ai-chatbot-1.0.0.zip` from [Releases](https://github.com/fahdi/wc-ai-chatbot/releases)
+1. Download `maya-ai-shopping-assistant-for-woocommerce-1.0.3.zip` from [Releases](https://github.com/fahdi/maya-ai-shopping-assistant-for-woocommerce/releases)
 2. In WordPress admin go to **Plugins → Add New → Upload Plugin**
 3. Upload the zip and activate
-4. Go to **Settings → AI Chatbot**
+4. Go to **Settings → Maya AI Assistant**
 5. Select your provider, enter your API key, save
 6. The chat widget appears on all frontend pages automatically
 
@@ -67,8 +65,8 @@ Supports **Anthropic Claude** and **Moonshot AI (Kimi K2)** with real-time strea
 
 The plugin registers two REST endpoints:
 
-- `POST /wp-json/wc-chatbot/v1/message` — standard request/response (Anthropic)
-- `POST /wp-json/wc-chatbot/v1/stream` — Server-Sent Events streaming (Moonshot)
+- `POST /wp-json/mayaai/v1/message` — standard request/response (Anthropic)
+- `POST /wp-json/mayaai/v1/stream` — Server-Sent Events streaming (Moonshot)
 
 Each request runs an **agentic loop**: the AI can call WooCommerce tools multiple times before returning a final response. Tool results feed back into the next API call automatically.
 

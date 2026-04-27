@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests for WC_AI_Chatbot_Tools.
+ * Unit tests for Mayaai_Tools.
  *
  * Red → Green → Refactor cycle.
  * WP/WC functions mocked via Brain\Monkey; WC objects via Mockery.
@@ -38,10 +38,10 @@ class ToolsTest extends TestCase {
         parent::tearDown();
     }
 
-    private function tools(): WC_AI_Chatbot_Tools {
-        $ref = new ReflectionProperty( WC_AI_Chatbot_Tools::class, 'instance' );
+    private function tools(): Mayaai_Tools {
+        $ref = new ReflectionProperty( Mayaai_Tools::class, 'instance' );
         $ref->setValue( null, null );
-        return WC_AI_Chatbot_Tools::instance();
+        return Mayaai_Tools::instance();
     }
 
     // ── execute() routing ─────────────────────────────────────────────────────

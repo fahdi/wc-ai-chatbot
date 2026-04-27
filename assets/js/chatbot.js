@@ -1,8 +1,8 @@
-/* WC AI Chatbot — vanilla JS, no dependencies */
+/* Maya AI Shopping Assistant — vanilla JS, no dependencies */
 (function () {
 	'use strict';
 
-	const cfg = window.wcAIChatbot;
+	const cfg = window.mayaaiChatbot;
 	if (!cfg) return;
 
 	// ── Accent colour ─────────────────────────────────────────────────────────
@@ -18,37 +18,39 @@
 	}
 
 	// ── Tool labels shown during streaming ────────────────────────────────────
+	const i18n = cfg.i18n || {};
 	const TOOL_LABELS = {
-		search_products:    '🔍 Searching products…',
-		get_product_details:'📋 Getting product details…',
-		add_to_cart:        '🛒 Adding to cart…',
-		view_cart:          '🛒 Checking your cart…',
-		remove_from_cart:   '🗑️ Removing from cart…',
+		search_products:     '🔍 ' + (i18n.toolSearchProducts || 'Searching products…'),
+		get_product_details: '📋 ' + (i18n.toolGetDetails     || 'Getting product details…'),
+		add_to_cart:         '🛒 ' + (i18n.toolAddToCart      || 'Adding to cart…'),
+		view_cart:           '🛒 ' + (i18n.toolViewCart       || 'Checking your cart…'),
+		remove_from_cart:    '🗑️ ' + (i18n.toolRemoveFromCart  || 'Removing from cart…'),
 	};
+	const TOOL_FALLBACK = '⚙️ ' + (i18n.toolWorking || 'Working…');
 
 	// ── State ─────────────────────────────────────────────────────────────────
 	let history = [];
 	let busy    = false;
 
 	// ── Build widget HTML ─────────────────────────────────────────────────────
-	const root = document.getElementById('wc-ai-chatbot-root');
+	const root = document.getElementById('mayaai-chatbot-root');
 	if (!root) return;
 
 	root.innerHTML = `
-		<button id="chatbot-toggle" aria-label="Open chat assistant">
+		<button id="chatbot-toggle" aria-label="${esc(i18n.openChat || 'Open chat assistant')}">
 			<svg width="22" height="22" viewBox="0 0 24 24" fill="none"
 				stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 				<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
 			</svg>
 		</button>
 		<div id="chatbot-panel" class="chatbot-hidden"
-			role="dialog" aria-modal="true" aria-label="Chat with store assistant">
+			role="dialog" aria-modal="true" aria-label="${esc(i18n.chatDialogLabel || 'Chat with store assistant')}">
 			<div id="chatbot-header">
 				<div id="chatbot-header-left">
 					<div id="chatbot-status-dot" aria-hidden="true"></div>
 					<span id="chatbot-bot-name">${esc(cfg.botName)}</span>
 				</div>
-				<button id="chatbot-close" aria-label="Close chat">&#x2715;</button>
+				<button id="chatbot-close" aria-label="${esc(i18n.closeChat || 'Close chat')}">&#x2715;</button>
 			</div>
 			<div id="chatbot-messages" role="log" aria-live="polite">
 				<div class="chatbot-msg bot">
@@ -57,9 +59,9 @@
 			</div>
 			<div id="chatbot-input-area">
 				<input id="chatbot-input" type="text"
-					placeholder="Ask me anything…" autocomplete="off"
-					aria-label="Your message">
-				<button id="chatbot-send" aria-label="Send message">
+					placeholder="${esc(i18n.placeholder || 'Ask me anything…')}" autocomplete="off"
+					aria-label="${esc(i18n.yourMessage || 'Your message')}">
+				<button id="chatbot-send" aria-label="${esc(i18n.sendMessage || 'Send message')}">
 					<svg width="15" height="15" viewBox="0 0 24 24" fill="none"
 						stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
 						<line x1="22" y1="2" x2="11" y2="13"/>
@@ -125,7 +127,7 @@
 			typingEl.remove();
 
 			if (!res.ok || !res.body) {
-				appendMessage('bot', 'Connection error. Please try again.');
+				appendMessage('bot', i18n.connectionError || 'Connection error. Please try again.');
 				history.pop();
 				return;
 			}
@@ -164,14 +166,14 @@
 								break;
 
 							case 'tool':
-								bubble.textContent = TOOL_LABELS[event.name] || '⚙️ Working…';
+								bubble.textContent = TOOL_LABELS[event.name] || TOOL_FALLBACK;
 								bubble.classList.add('chatbot-tool-status');
 								break;
 
 							case 'done':
 								bubble.classList.remove('chatbot-tool-status');
 								if (!fullText) {
-									bubble.textContent = 'No response received. Please try again.';
+									bubble.textContent = i18n.noResponseStream || 'No response received. Please try again.';
 									history.pop();
 								} else {
 									bubble.innerHTML = renderMarkdown(fullText);
@@ -180,7 +182,7 @@
 								break;
 
 							case 'error':
-								bubble.textContent = event.message || 'Something went wrong. Please try again.';
+								bubble.textContent = event.message || (i18n.genericError || 'Something went wrong. Please try again.');
 								bubble.classList.remove('chatbot-tool-status');
 								history.pop();
 								break;
@@ -190,7 +192,7 @@
 			}
 
 		} catch (err) {
-			appendMessage('bot', 'Connection error. Please try again.');
+			appendMessage('bot', i18n.connectionError || 'Connection error. Please try again.');
 			history.pop();
 		} finally {
 			setLoading(false);
@@ -213,7 +215,7 @@
 			typingEl.remove();
 
 			if (!res.ok) {
-				let errMsg = 'Something went wrong. Please try again.';
+				let errMsg = i18n.genericError || 'Something went wrong. Please try again.';
 				try { const e = await res.json(); if (e.message) errMsg = e.message; } catch {}
 				appendMessage('bot', errMsg);
 				history.pop();
@@ -221,13 +223,13 @@
 			}
 
 			const data  = await res.json();
-			const reply = data.message || 'No response. Please try again.';
+			const reply = data.message || (i18n.noResponseRegular || 'No response. Please try again.');
 			appendMessage('bot', reply);
 
 			history = Array.isArray(data.messages) ? data.messages : [...history, { role: 'assistant', content: reply }];
 
 		} catch {
-			appendMessage('bot', 'Connection error. Please try again.');
+			appendMessage('bot', i18n.connectionError || 'Connection error. Please try again.');
 			history.pop();
 		} finally {
 			setLoading(false);

@@ -1,35 +1,58 @@
-# AI Chatbot for WooCommerce — Developer Knowledge Base
+# Maya AI Shopping Assistant for WooCommerce — Developer Knowledge Base
 
-Plugin folder: `wc-ai-chatbot/`
-Main file: `wc-ai-chatbot.php`
-GitHub: https://github.com/fahdi/wc-ai-chatbot
-Current version: 1.0.2
+Plugin folder: `maya-ai-shopping-assistant-for-woocommerce/`
+Main file: `maya-ai-shopping-assistant-for-woocommerce.php`
+GitHub: https://github.com/fahdi/maya-ai-shopping-assistant-for-woocommerce
+Current version: 1.0.3
+Slug (WP.org): `maya-ai-shopping-assistant-for-woocommerce` (pending approval)
+Text domain: `maya-ai-shopping-assistant-for-woocommerce` (must equal slug)
+
+---
+
+## Naming Conventions
+
+| Concept | Pattern | Examples |
+|---|---|---|
+| PHP constants | `MAYAAI_*` | `MAYAAI_VERSION`, `MAYAAI_PATH`, `MAYAAI_URL` |
+| PHP classes | `Mayaai_*` | `Mayaai_Chatbot`, `Mayaai_API_Handler`, `Mayaai_Tools` |
+| PHP functions | `mayaai_*` | `mayaai_settings_page` |
+| Option keys | `mayaai_*` | `mayaai_provider`, `mayaai_anthropic_api_key` |
+| Nonce action | `mayaai_settings` |
+| Submit button name | `mayaai_save` |
+| JS handle (script/style) | `mayaai-chatbot`, `mayaai-admin` |
+| JS localized var | `window.mayaaiChatbot` |
+| REST namespace | `mayaai/v1` |
+| HTML root id | `mayaai-chatbot-root` |
+| Admin tbody ids | `mayaai-anthropic`, `mayaai-moonshot` |
+
+The `MAYAAI` / `mayaai_` prefix derives from **M**aya **AI** Shopping Assistant for **W**ooCommerce. It's 6 characters, distinct, and uses no common words — passes WP.org's "at least 4 chars, distinct and unique" prefix requirement.
 
 ---
 
 ## File Structure
 
 ```
-wc-ai-chatbot/
-├── wc-ai-chatbot.php              # Bootstrap: plugin header, WC_AI_Chatbot class, REST routes
+maya-ai-shopping-assistant-for-woocommerce/
+├── maya-ai-shopping-assistant-for-woocommerce.php   # Bootstrap: header, Mayaai_Chatbot class, REST routes
 ├── includes/
-│   ├── class-api-handler.php      # All AI logic: agents, API calls, SSE streaming, tools specs
-│   ├── class-tools.php            # WooCommerce operations executed by the AI
-│   └── admin-settings.php        # Settings page (provider, keys, widget config)
+│   ├── class-api-handler.php                         # Mayaai_API_Handler — agents, API calls, SSE streaming, tools specs
+│   ├── class-tools.php                               # Mayaai_Tools — WooCommerce operations executed by the AI
+│   └── admin-settings.php                            # mayaai_settings_page() — provider, keys, widget config
 ├── assets/
-│   ├── js/chatbot.js              # Frontend widget — vanilla JS, no dependencies
-│   └── css/chatbot.css            # Widget styles with CSS custom properties
+│   ├── js/chatbot.js                                 # Frontend widget — vanilla JS, no dependencies
+│   ├── js/admin-settings.js                          # Admin provider toggle (extracted from inline <script>)
+│   └── css/chatbot.css                               # Widget styles with CSS custom properties
 ├── tests/
-│   ├── bootstrap.php              # PHPUnit bootstrap: loads stubs + plugin classes
-│   ├── stubs/wc-stubs.php         # WP_Error, WC_Product, WC_Cart stubs for tests
+│   ├── bootstrap.php                                 # PHPUnit bootstrap: loads stubs + plugin classes
+│   ├── stubs/wc-stubs.php                            # WP_Error, WC_Product, WC_Cart stubs for tests
 │   └── unit/
-│       ├── ApiHandlerTest.php     # 15 tests: sanitize_messages(), tool_specs()
-│       └── ToolsTest.php          # 21 tests: all 5 WooCommerce tools
+│       ├── ApiHandlerTest.php                        # 15 tests: sanitize_messages(), tool_specs()
+│       └── ToolsTest.php                             # 21 tests: all 5 WooCommerce tools
 ├── languages/
-│   └── index.php                  # Placeholder — WP.org auto-loads translations
-├── readme.txt                     # WordPress.org format
-├── README.md                      # GitHub format (includes Playground badge)
-└── uninstall.php                  # Deletes all options on plugin uninstall
+│   └── index.php                                     # Placeholder — WP.org auto-loads translations
+├── readme.txt                                        # WordPress.org format
+├── README.md                                         # GitHub format
+└── uninstall.php                                     # Deletes all options on plugin uninstall
 ```
 
 ---
@@ -41,11 +64,11 @@ wc-ai-chatbot/
 **Anthropic (non-streaming):**
 ```
 JS sendRegular()
-  → POST /wp-json/wc-chatbot/v1/message
-    → handle_message()
+  → POST /wp-json/mayaai/v1/message
+    → Mayaai_API_Handler::handle_message()
       → run_anthropic_agent()         # loop: tool_use → end_turn
         → call_anthropic()            # wp_remote_post to api.anthropic.com
-        → Tools::execute()            # WooCommerce operations
+        → Mayaai_Tools::execute()     # WooCommerce operations
       → returns { message, messages }
   ← JS appendMessage('bot', reply)
      renderMarkdown() applied
@@ -54,12 +77,12 @@ JS sendRegular()
 **Moonshot (SSE streaming):**
 ```
 JS sendStreaming()
-  → POST /wp-json/wc-chatbot/v1/stream
-    → handle_stream()                 # bypasses WP REST buffering
-      → run_stream_agent()            # loop: stream → execute tools → stream again
-        → stream_one_turn()           # raw cURL — only way to do SSE
+  → POST /wp-json/mayaai/v1/stream
+    → Mayaai_API_Handler::handle_stream()      # bypasses WP REST buffering
+      → run_stream_agent()                      # loop: stream → execute tools → stream again
+        → stream_one_turn()                     # raw cURL — only way to do SSE
           → emits SSE: chunk / tool / error
-        → Tools::execute()            # between turns
+        → Mayaai_Tools::execute()               # between turns
       → emits SSE: done
   ← JS reads ReadableStream, parses SSE events
      'chunk' → append text (plain)
@@ -85,7 +108,7 @@ reviewers understand the necessity.
 - **Auth header:** `x-api-key: {key}`
 - **Tool format:** `input_schema` (JSON Schema inside `tools` array)
 - **Tool loop:** response `stop_reason === 'tool_use'` → execute → append `tool_result` → repeat
-- **Option key:** `wc_ai_chatbot_anthropic_api_key`
+- **Option key:** `mayaai_anthropic_api_key`
 - **Models:** `claude-haiku-4-5-20251001`, `claude-sonnet-4-6`, `claude-opus-4-6`
 - **Content filtering:** Haiku is aggressive — if "Output blocked by content filtering policy" appears, switch to Sonnet
 
@@ -97,19 +120,13 @@ reviewers understand the necessity.
 - **System message:** prepended as first message (`role: system`) — not a top-level field
 - **Tool loop:** `finish_reason === 'tool_calls'` → execute → append `tool` role message → repeat
 - **Streaming:** SSE with `stream: true`, delta chunks, `[DONE]` sentinel
-- **Option key:** `wc_ai_chatbot_moonshot_api_key`
-- **Models (live on api.moonshot.ai):**
-  - `kimi-k2-thinking-turbo` — recommended default
-  - `kimi-k2-thinking` — full reasoning
-  - `kimi-k2.5` — latest, vision + reasoning
-  - `kimi-k2-0905-preview`, `kimi-k2-turbo-preview`
-  - `moonshot-v1-auto`, `moonshot-v1-8k`, `moonshot-v1-32k`, `moonshot-v1-128k`
+- **Option key:** `mayaai_moonshot_api_key`
 
 ---
 
 ## WooCommerce Tools
 
-Five tools are defined in `tool_specs()` (canonical) and mapped to two formats:
+Five tools are defined in `Mayaai_API_Handler::tool_specs()` (canonical) and mapped to two formats:
 - `get_anthropic_tools()` → uses `input_schema`
 - `get_openai_tools()` → uses `parameters` + `type: "function"`
 
@@ -148,19 +165,19 @@ is applied on `done` to the final assembled `fullText`.
 
 ## WordPress Options
 
-All stored under the `wc_ai_chatbot_` prefix:
+All stored under the `mayaai_` prefix:
 
 | Option | Default | Description |
 |---|---|---|
-| `wc_ai_chatbot_provider` | `anthropic` | `anthropic` or `moonshot` |
-| `wc_ai_chatbot_anthropic_api_key` | `''` | Anthropic key (sk-ant-…) |
-| `wc_ai_chatbot_anthropic_model` | `claude-haiku-4-5-20251001` | Claude model ID |
-| `wc_ai_chatbot_moonshot_api_key` | `''` | Moonshot key (sk-…) |
-| `wc_ai_chatbot_moonshot_model` | `kimi-k2-thinking-turbo` | Kimi model ID |
-| `wc_ai_chatbot_bot_name` | `Store Assistant` | Widget header name |
-| `wc_ai_chatbot_greeting` | `Hi! How can I help you today?` | First bot message |
-| `wc_ai_chatbot_system_prompt` | `''` | Custom prompt appended to default |
-| `wc_ai_chatbot_accent_color` | `#2563eb` | Widget header/button color |
+| `mayaai_provider` | `anthropic` | `anthropic` or `moonshot` |
+| `mayaai_anthropic_api_key` | `''` | Anthropic key (sk-ant-…) |
+| `mayaai_anthropic_model` | `claude-haiku-4-5-20251001` | Claude model ID |
+| `mayaai_moonshot_api_key` | `''` | Moonshot key (sk-…) |
+| `mayaai_moonshot_model` | `kimi-k2-thinking-turbo` | Kimi model ID |
+| `mayaai_bot_name` | `Store Assistant` | Widget header name |
+| `mayaai_greeting` | `Hi! How can I help you today?` | First bot message |
+| `mayaai_system_prompt` | `''` | Custom prompt appended to default |
+| `mayaai_accent_color` | `#2563eb` | Widget header/button color |
 
 All options are deleted by `uninstall.php` when the plugin is removed.
 
@@ -170,8 +187,10 @@ All options are deleted by `uninstall.php` when the plugin is removed.
 
 `assets/js/chatbot.js` — vanilla JS, no dependencies, IIFE-wrapped.
 
-**Config injected via `wp_localize_script` as `window.wcAIChatbot`:**
-`apiUrl`, `streamUrl`, `provider`, `nonce`, `botName`, `greeting`, `accentColor`
+**Config injected via `wp_localize_script` as `window.mayaaiChatbot`:**
+- `apiUrl`, `streamUrl`, `provider`, `nonce`
+- `botName`, `greeting`, `accentColor`
+- `i18n` — translatable strings for all UI labels, error messages, and tool status labels
 
 **Key functions:**
 - `sendMessage()` — routes to `sendStreaming()` or `sendRegular()` based on `cfg.provider`
@@ -188,15 +207,28 @@ All options are deleted by `uninstall.php` when the plugin is removed.
 
 ---
 
+## Admin Settings
+
+Located in `includes/admin-settings.php` — `mayaai_settings_page()`.
+
+Page hook: `settings_page_maya-ai-shopping-assistant-for-woocommerce`
+The main plugin's `enqueue_admin_assets()` checks for this hook string before enqueueing `mayaai-admin` (the provider toggle script).
+
+Form fields use `mayaai_settings` nonce and `mayaai_save` submit button name. All `$_POST` reads pass through `wp_unslash()` and the appropriate sanitize callback.
+
+The provider toggle JS (extracted from a previously-inline `<script>` block to satisfy WP.org review) lives in `assets/js/admin-settings.js`. It binds a `change` listener on the `#provider` select and toggles `#mayaai-anthropic` / `#mayaai-moonshot` visibility.
+
+---
+
 ## REST API
 
-**Namespace:** `wc-chatbot/v1`
+**Namespace:** `mayaai/v1`
 **Authentication:** `X-WP-Nonce` header with `wp_rest` action nonce
 
 | Endpoint | Method | Handler | Used by |
 |---|---|---|---|
-| `/message` | POST | `handle_message()` | Anthropic provider |
-| `/stream` | POST | `handle_stream()` | Moonshot provider |
+| `/message` | POST | `Mayaai_API_Handler::handle_message()` | Anthropic provider |
+| `/stream` | POST | `Mayaai_API_Handler::handle_stream()` | Moonshot provider |
 
 `handle_stream()` bypasses WordPress REST buffering via:
 ```php
@@ -213,57 +245,72 @@ header( 'X-Accel-Buffering: no' );  // disables nginx buffering
 
 ---
 
+## Internationalization
+
+Every user-facing string is wrapped in a gettext function with the `maya-ai-shopping-assistant-for-woocommerce` text domain.
+
+**PHP:**
+- `__()` / `esc_html__()` / `esc_html_e()` / `esc_attr_e()` — labels, headings, settings page
+- `sprintf( __( '... %s ...', '...' ), $var )` — error messages with dynamic content (with `/* translators: */` comments)
+- `Mayaai_API_Handler` — all `WP_Error` messages, including HTTP error formatters
+- `Mayaai_Tools` — all tool result messages (success, error, hint)
+
+**JS:**
+- All UI labels, ARIA labels, placeholders, error messages, and tool status labels are passed via `wp_localize_script` as `mayaaiChatbot.i18n.*`
+- The JS file uses `i18n.foo || 'fallback English'` to be defensive against missing keys
+
+**Text domain matching:** WP.org review requires the text domain to exactly match the plugin slug. Both are `maya-ai-shopping-assistant-for-woocommerce`.
+
+---
+
 ## Test Suite
 
 **Runner:** `vendor/bin/phpunit --testdox`
 **Stack:** PHPUnit 10.5 + Brain\Monkey 2.x + Mockery 1.x
-**Coverage:** 36 tests, 117 assertions — all green
+**Coverage:** 36 tests, 117 assertions
 
-**Key patterns:**
-- `WC_AI_Chatbot_API_Handler` and `WC_AI_Chatbot_Tools` are singletons; tests reset
-  the `$instance` property via `ReflectionProperty` before each test
-- `sanitize_textarea_field` is NOT stubbed in `ApiHandlerTest::setUp()` — tests that
-  need pass-through add `Functions\when()->returnArg()` per-test; the sanitization
-  test uses `Functions\expect()->once()` to assert the function is called
-- Mockery stubs on `mockProduct()` use `->byDefault()` so individual tests can
-  override `is_visible` / `is_in_stock` without double-stub conflicts
+**Class refs in tests:**
+- `Mayaai_API_Handler::class` (was `WC_AI_Chatbot_API_Handler`)
+- `Mayaai_Tools::class` (was `WC_AI_Chatbot_Tools`)
+- Reflection on `Mayaai_*::$instance` to reset singletons between tests
 
 **Running tests (Local by Flywheel PHP):**
 ```bash
-cd /Users/isupercoder/websites/woocommerce-demo/app/public/wp-content/plugins/wc-ai-chatbot
+cd /Users/isupercoder/websites/woocommerce-demo/app/public/wp-content/plugins/maya-ai-shopping-assistant-for-woocommerce
 vendor/bin/phpunit --testdox
-```
-MySQL socket symlink required for WP-CLI:
-```bash
-ln -sf "/Users/isupercoder/Library/Application Support/Local/run/kwQ7_3vip/mysql/mysqld.sock" /tmp/mysql.sock
 ```
 
 ---
 
 ## WordPress.org Distribution
 
-**Plugin name:** AI Chatbot for WooCommerce (renamed from "WC AI Chatbot" — "wc" is a restricted trademark)
-**Slug (for WP.org submission):** `ai-chatbot-for-woocommerce`
-**Text domain:** `wc-ai-chatbot`
-**Playground preview:** https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fwordpress.org%2Fplugins%2Fwp-json%2Fplugins%2Fv1%2Fplugin%2Fwc-ai-chatbot%2Fblueprint.json%3Fzip_hash%3D27be4be624dce5f524e5529f9753bded%26type%3Dpcp
+**Status:** Pending review. Submitted as `wc-ai-chatbot` (Apr 13, 2026), pended on Apr 23 with name/prefix issues. Renamed to "Maya AI Shopping Assistant for WooCommerce" on Apr 28 — slug change request submitted with v1.0.3 upload.
 
-**Plugin Check status (v1.0.2):** all errors and warnings resolved
-- cURL: `phpcs:disable/enable` with SSE justification — passes human review
-- `wp_unslash()` on all `$_POST` reads
-- `load_plugin_textdomain()` removed (WP 4.6+ auto-loads)
-- Tags limited to 5
-- `$wc_ai_chatbot_options` prefixed in `uninstall.php`
+**v1.0.3 Plugin Check fixes:**
+- Plugin name renamed (was too generic, collided with existing plugins)
+- Slug change requested explicitly in upload comment + email reply
+- All `wc_*` / `WC_*` prefixes replaced with `mayaai_*` / `MAYAAI_*` / `Mayaai_*`
+- `Requires Plugins: woocommerce` header added
+- Inline `<script>` in admin settings replaced with externally-enqueued `assets/js/admin-settings.js`
+- All user-facing strings wrapped in gettext functions; JS strings passed via `wp_localize_script.i18n`
+- Text domain matches slug exactly (per past TableCrafter review feedback)
 
 **Building a release zip:**
 ```bash
-cd .../wp-content/plugins
-zip -r wc-ai-chatbot-X.X.X.zip wc-ai-chatbot \
-  --exclude "wc-ai-chatbot/.git/*" \
-  --exclude "wc-ai-chatbot/vendor/*" \
-  --exclude "wc-ai-chatbot/tests/*" \
-  --exclude "wc-ai-chatbot/composer.json" \
-  --exclude "wc-ai-chatbot/phpunit.xml" \
-  --exclude "wc-ai-chatbot/phpunit.xml.bak" \
-  --exclude "wc-ai-chatbot/.phpunit.result.cache" \
-  --exclude "wc-ai-chatbot/.gitignore"
+cd /Users/isupercoder/Code/github
+zip -r maya-ai-shopping-assistant-for-woocommerce-1.0.3.zip maya-ai-shopping-assistant-for-woocommerce \
+  --exclude "maya-ai-shopping-assistant-for-woocommerce/.git/*" \
+  --exclude "maya-ai-shopping-assistant-for-woocommerce/vendor/*" \
+  --exclude "maya-ai-shopping-assistant-for-woocommerce/tests/*" \
+  --exclude "maya-ai-shopping-assistant-for-woocommerce/composer.json" \
+  --exclude "maya-ai-shopping-assistant-for-woocommerce/phpunit.xml" \
+  --exclude "maya-ai-shopping-assistant-for-woocommerce/phpunit.xml.bak" \
+  --exclude "maya-ai-shopping-assistant-for-woocommerce/.phpunit.result.cache" \
+  --exclude "maya-ai-shopping-assistant-for-woocommerce/.gitignore" \
+  --exclude "maya-ai-shopping-assistant-for-woocommerce/CLAUDE.md"
 ```
+
+**Reply to WP.org reviewer pattern (from past EventCrafter/LeadCrafter approvals):**
+- Brief and direct — no copy-pasted AI fluff (reviewer flags this explicitly)
+- Bullet list of categories addressed (don't enumerate every change)
+- Slug change must be requested *explicitly* in the email body AND in the upload comment

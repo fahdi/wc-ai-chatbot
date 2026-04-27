@@ -4,7 +4,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Executes WooCommerce tool calls on behalf of the AI agent.
  */
-final class WC_AI_Chatbot_Tools {
+final class Mayaai_Tools {
 
 	private static $instance = null;
 
@@ -37,7 +37,13 @@ final class WC_AI_Chatbot_Tools {
 			case 'remove_from_cart':
 				return $this->remove_from_cart( $input );
 			default:
-				return [ 'error' => "Unknown tool: {$name}" ];
+				return [
+					'error' => sprintf(
+						/* translators: %s: name of the unknown tool requested by the AI */
+						__( 'Unknown tool: %s', 'maya-ai-shopping-assistant-for-woocommerce' ),
+						$name
+					),
+				];
 		}
 	}
 
@@ -74,7 +80,7 @@ final class WC_AI_Chatbot_Tools {
 			return [
 				'found'    => 0,
 				'products' => [],
-				'message'  => 'No products found matching your search.',
+				'message'  => __( 'No products found matching your search.', 'maya-ai-shopping-assistant-for-woocommerce' ),
 			];
 		}
 
@@ -89,7 +95,7 @@ final class WC_AI_Chatbot_Tools {
 		$product    = wc_get_product( $product_id );
 
 		if ( ! $product || ! $product->is_visible() ) {
-			return [ 'error' => 'Product not found.' ];
+			return [ 'error' => __( 'Product not found.', 'maya-ai-shopping-assistant-for-woocommerce' ) ];
 		}
 
 		$data = [
@@ -138,13 +144,20 @@ final class WC_AI_Chatbot_Tools {
 		$product = wc_get_product( $product_id );
 
 		if ( ! $product || ! $product->is_visible() ) {
-			return [ 'success' => false, 'error' => 'Product not found.' ];
+			return [
+				'success' => false,
+				'error'   => __( 'Product not found.', 'maya-ai-shopping-assistant-for-woocommerce' ),
+			];
 		}
 
 		if ( ! $product->is_in_stock() ) {
 			return [
 				'success' => false,
-				'error'   => $product->get_name() . ' is currently out of stock.',
+				'error'   => sprintf(
+					/* translators: %s: product name */
+					__( '%s is currently out of stock.', 'maya-ai-shopping-assistant-for-woocommerce' ),
+					$product->get_name()
+				),
 			];
 		}
 
@@ -153,7 +166,12 @@ final class WC_AI_Chatbot_Tools {
 		if ( $cart_item_key ) {
 			return [
 				'success'       => true,
-				'message'       => "Added {$quantity}x {$product->get_name()} to your cart.",
+				'message'       => sprintf(
+					/* translators: 1: quantity, 2: product name */
+					__( 'Added %1$dx %2$s to your cart.', 'maya-ai-shopping-assistant-for-woocommerce' ),
+					$quantity,
+					$product->get_name()
+				),
 				'cart_item_key' => $cart_item_key,
 				'cart_total'    => wp_strip_all_tags( WC()->cart->get_cart_total() ),
 				'cart_url'      => wc_get_cart_url(),
@@ -161,14 +179,20 @@ final class WC_AI_Chatbot_Tools {
 			];
 		}
 
-		return [ 'success' => false, 'error' => 'Could not add to cart. The product may require a variation to be selected.' ];
+		return [
+			'success' => false,
+			'error'   => __( 'Could not add to cart. The product may require a variation to be selected.', 'maya-ai-shopping-assistant-for-woocommerce' ),
+		];
 	}
 
 	private function view_cart(): array {
 		$cart = WC()->cart;
 
 		if ( $cart->is_empty() ) {
-			return [ 'empty' => true, 'message' => 'Your cart is empty.' ];
+			return [
+				'empty'   => true,
+				'message' => __( 'Your cart is empty.', 'maya-ai-shopping-assistant-for-woocommerce' ),
+			];
 		}
 
 		$items = [];
@@ -200,13 +224,19 @@ final class WC_AI_Chatbot_Tools {
 		$key = sanitize_text_field( $input['cart_item_key'] ?? '' );
 
 		if ( empty( $key ) ) {
-			return [ 'success' => false, 'error' => 'Cart item key is required.' ];
+			return [
+				'success' => false,
+				'error'   => __( 'Cart item key is required.', 'maya-ai-shopping-assistant-for-woocommerce' ),
+			];
 		}
 
 		$cart_contents = WC()->cart->get_cart();
 
 		if ( ! isset( $cart_contents[ $key ] ) ) {
-			return [ 'success' => false, 'error' => 'Item not found in cart.' ];
+			return [
+				'success' => false,
+				'error'   => __( 'Item not found in cart.', 'maya-ai-shopping-assistant-for-woocommerce' ),
+			];
 		}
 
 		$product_name = $cart_contents[ $key ]['data']->get_name();
@@ -214,12 +244,19 @@ final class WC_AI_Chatbot_Tools {
 		if ( WC()->cart->remove_cart_item( $key ) ) {
 			return [
 				'success'   => true,
-				'message'   => "Removed {$product_name} from your cart.",
+				'message'   => sprintf(
+					/* translators: %s: product name */
+					__( 'Removed %s from your cart.', 'maya-ai-shopping-assistant-for-woocommerce' ),
+					$product_name
+				),
 				'new_total' => wp_strip_all_tags( WC()->cart->get_cart_total() ),
 			];
 		}
 
-		return [ 'success' => false, 'error' => 'Could not remove the item.' ];
+		return [
+			'success' => false,
+			'error'   => __( 'Could not remove the item.', 'maya-ai-shopping-assistant-for-woocommerce' ),
+		];
 	}
 
 	// -------------------------------------------------------------------------

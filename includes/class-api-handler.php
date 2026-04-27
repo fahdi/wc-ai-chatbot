@@ -5,7 +5,7 @@ defined( 'ABSPATH' ) || exit;
  * Handles the REST endpoint and drives the agentic loop for both
  * Anthropic (Claude) and Moonshot AI (OpenAI-compatible) providers.
  */
-final class WC_AI_Chatbot_API_Handler {
+final class Mayaai_API_Handler {
 
 	private static $instance = null;
 
@@ -26,20 +26,20 @@ final class WC_AI_Chatbot_API_Handler {
 		$messages = $request->get_param( 'messages' );
 
 		if ( empty( $messages ) || ! is_array( $messages ) ) {
-			return new WP_Error( 'invalid_messages', 'A messages array is required.', [ 'status' => 400 ] );
+			return new WP_Error( 'invalid_messages', __( 'A messages array is required.', 'maya-ai-shopping-assistant-for-woocommerce' ), [ 'status' => 400 ] );
 		}
 
 		$sanitized = $this->sanitize_messages( $messages );
 
 		if ( empty( $sanitized ) ) {
-			return new WP_Error( 'empty_messages', 'No valid messages provided.', [ 'status' => 400 ] );
+			return new WP_Error( 'empty_messages', __( 'No valid messages provided.', 'maya-ai-shopping-assistant-for-woocommerce' ), [ 'status' => 400 ] );
 		}
 
 		if ( function_exists( 'wc_load_cart' ) ) {
 			wc_load_cart();
 		}
 
-		$provider = get_option( 'wc_ai_chatbot_provider', 'anthropic' );
+		$provider = get_option( 'mayaai_provider', 'anthropic' );
 
 		$result = ( 'moonshot' === $provider )
 			? $this->run_moonshot_agent( $sanitized )
@@ -57,7 +57,7 @@ final class WC_AI_Chatbot_API_Handler {
 	// =========================================================================
 
 	private function run_anthropic_agent( array $messages ): array|WP_Error {
-		$tools = WC_AI_Chatbot_Tools::instance();
+		$tools = Mayaai_Tools::instance();
 		$max   = 8;
 
 		for ( $i = 0; $i < $max; $i++ ) {
@@ -104,17 +104,17 @@ final class WC_AI_Chatbot_API_Handler {
 			break;
 		}
 
-		return new WP_Error( 'agent_loop', 'Agent exceeded maximum iterations.', [ 'status' => 500 ] );
+		return new WP_Error( 'agent_loop', __( 'Agent exceeded maximum iterations.', 'maya-ai-shopping-assistant-for-woocommerce' ), [ 'status' => 500 ] );
 	}
 
 	private function call_anthropic( array $messages ): array|WP_Error {
-		$api_key = get_option( 'wc_ai_chatbot_anthropic_api_key', '' );
+		$api_key = get_option( 'mayaai_anthropic_api_key', '' );
 
 		if ( empty( $api_key ) ) {
-			return new WP_Error( 'no_api_key', 'Anthropic API key is not configured.', [ 'status' => 500 ] );
+			return new WP_Error( 'no_api_key', __( 'Anthropic API key is not configured.', 'maya-ai-shopping-assistant-for-woocommerce' ), [ 'status' => 500 ] );
 		}
 
-		$model = get_option( 'wc_ai_chatbot_anthropic_model', 'claude-haiku-4-5-20251001' );
+		$model = get_option( 'mayaai_anthropic_model', 'claude-haiku-4-5-20251001' );
 
 		$payload = [
 			'model'      => $model,
@@ -142,7 +142,11 @@ final class WC_AI_Chatbot_API_Handler {
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		if ( 200 !== $code ) {
-			$msg = $body['error']['message'] ?? "Anthropic API error (HTTP {$code}).";
+			$msg = $body['error']['message'] ?? sprintf(
+				/* translators: %d: HTTP status code from the Anthropic API */
+				__( 'Anthropic API error (HTTP %d).', 'maya-ai-shopping-assistant-for-woocommerce' ),
+				$code
+			);
 			return new WP_Error( 'api_error', $msg, [ 'status' => 502 ] );
 		}
 
@@ -154,7 +158,7 @@ final class WC_AI_Chatbot_API_Handler {
 	// =========================================================================
 
 	private function run_moonshot_agent( array $messages ): array|WP_Error {
-		$tools = WC_AI_Chatbot_Tools::instance();
+		$tools = Mayaai_Tools::instance();
 		$max   = 8;
 
 		// Moonshot uses a system message as the first entry, not a top-level field.
@@ -207,17 +211,17 @@ final class WC_AI_Chatbot_API_Handler {
 			break;
 		}
 
-		return new WP_Error( 'agent_loop', 'Agent exceeded maximum iterations.', [ 'status' => 500 ] );
+		return new WP_Error( 'agent_loop', __( 'Agent exceeded maximum iterations.', 'maya-ai-shopping-assistant-for-woocommerce' ), [ 'status' => 500 ] );
 	}
 
 	private function call_moonshot( array $messages ): array|WP_Error {
-		$api_key = get_option( 'wc_ai_chatbot_moonshot_api_key', '' );
+		$api_key = get_option( 'mayaai_moonshot_api_key', '' );
 
 		if ( empty( $api_key ) ) {
-			return new WP_Error( 'no_api_key', 'Moonshot API key is not configured.', [ 'status' => 500 ] );
+			return new WP_Error( 'no_api_key', __( 'Moonshot API key is not configured.', 'maya-ai-shopping-assistant-for-woocommerce' ), [ 'status' => 500 ] );
 		}
 
-		$model = get_option( 'wc_ai_chatbot_moonshot_model', 'moonshot-v1-32k' );
+		$model = get_option( 'mayaai_moonshot_model', 'moonshot-v1-32k' );
 
 		$payload = [
 			'model'      => $model,
@@ -243,7 +247,11 @@ final class WC_AI_Chatbot_API_Handler {
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		if ( 200 !== $code ) {
-			$msg = $body['error']['message'] ?? "Moonshot API error (HTTP {$code}).";
+			$msg = $body['error']['message'] ?? sprintf(
+				/* translators: %d: HTTP status code from the Moonshot API */
+				__( 'Moonshot API error (HTTP %d).', 'maya-ai-shopping-assistant-for-woocommerce' ),
+				$code
+			);
 			return new WP_Error( 'api_error', $msg, [ 'status' => 502 ] );
 		}
 
@@ -347,7 +355,7 @@ final class WC_AI_Chatbot_API_Handler {
 	// =========================================================================
 
 	private function get_system_prompt(): string {
-		$custom = get_option( 'wc_ai_chatbot_system_prompt', '' );
+		$custom = get_option( 'mayaai_system_prompt', '' );
 		if ( ! empty( $custom ) ) {
 			return $custom;
 		}
@@ -412,21 +420,21 @@ Guidelines:
 	// =========================================================================
 
 	/**
-	 * REST callback for POST /wp-json/wc-chatbot/v1/stream
+	 * REST callback for POST /wp-json/mayaai/v1/stream
 	 * Bypasses WordPress response buffering and pipes SSE directly to the browser.
 	 */
 	public function handle_stream( WP_REST_Request $request ): void {
 		$messages = $request->get_param( 'messages' );
 
 		if ( empty( $messages ) || ! is_array( $messages ) ) {
-			$this->sse_send( 'error', [ 'message' => 'A messages array is required.' ] );
+			$this->sse_send( 'error', [ 'message' => __( 'A messages array is required.', 'maya-ai-shopping-assistant-for-woocommerce' ) ] );
 			exit;
 		}
 
 		$sanitized = $this->sanitize_messages( $messages );
 
 		if ( empty( $sanitized ) ) {
-			$this->sse_send( 'error', [ 'message' => 'No valid messages provided.' ] );
+			$this->sse_send( 'error', [ 'message' => __( 'No valid messages provided.', 'maya-ai-shopping-assistant-for-woocommerce' ) ] );
 			exit;
 		}
 
@@ -463,7 +471,7 @@ Guidelines:
 	 * Each turn streams text chunks live; tool calls are collected, executed, then the next turn streams.
 	 */
 	private function run_stream_agent( array $messages ): void {
-		$tools = WC_AI_Chatbot_Tools::instance();
+		$tools = Mayaai_Tools::instance();
 		$max   = 8;
 
 		// Moonshot needs system as first message.
@@ -509,7 +517,7 @@ Guidelines:
 			}
 		}
 
-		$this->sse_send( 'error', [ 'message' => 'Agent exceeded maximum iterations.' ] );
+		$this->sse_send( 'error', [ 'message' => __( 'Agent exceeded maximum iterations.', 'maya-ai-shopping-assistant-for-woocommerce' ) ] );
 	}
 
 	/**
@@ -520,8 +528,8 @@ Guidelines:
 	 * @return array{0: string, 1: array, 2: string|null} [text, tool_calls, error]
 	 */
 	private function stream_one_turn( array $messages ): array {
-		$api_key = get_option( 'wc_ai_chatbot_moonshot_api_key', '' );
-		$model   = get_option( 'wc_ai_chatbot_moonshot_model', 'moonshot-v1-32k' );
+		$api_key = get_option( 'mayaai_moonshot_api_key', '' );
+		$model   = get_option( 'mayaai_moonshot_model', 'moonshot-v1-32k' );
 
 		$payload = [
 			'model'      => $model,
@@ -575,7 +583,7 @@ Guidelines:
 
 					// Error embedded inside the SSE stream.
 					if ( isset( $chunk['error'] ) ) {
-						$error = $chunk['error']['message'] ?? 'Moonshot API error.';
+						$error = $chunk['error']['message'] ?? __( 'Moonshot API error.', 'maya-ai-shopping-assistant-for-woocommerce' );
 						return strlen( $raw );
 					}
 
@@ -614,8 +622,11 @@ Guidelines:
 		// Non-200 with no SSE error parsed → plain JSON error body (e.g. 401 auth failures).
 		if ( ! $error && $http_code !== 200 ) {
 			$body  = json_decode( $raw_body, true );
-			$error = $body['error']['message']
-				?? "Moonshot API error (HTTP {$http_code}).";
+			$error = $body['error']['message'] ?? sprintf(
+				/* translators: %d: HTTP status code from the Moonshot API */
+				__( 'Moonshot API error (HTTP %d).', 'maya-ai-shopping-assistant-for-woocommerce' ),
+				$http_code
+			);
 		}
 
 		curl_close( $ch );

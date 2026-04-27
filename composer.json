@@ -1,6 +1,6 @@
 {
-    "name": "wc-ai-chatbot/wc-ai-chatbot",
-    "description": "AI-powered WooCommerce chatbot",
+    "name": "fahdi/maya-ai-shopping-assistant-for-woocommerce",
+    "description": "AI-powered WooCommerce shopping assistant",
     "type": "wordpress-plugin",
     "require": {
         "php": ">=8.1"
@@ -12,7 +12,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "WcAiChatbot\\Tests\\": "tests/"
+            "Mayaai\\Tests\\": "tests/"
         }
     },
     "config": {
