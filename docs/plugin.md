@@ -102,6 +102,6 @@ rm -rf /tmp/fahad-build && mkdir -p /tmp/fahad-build/$SLUG
 git archive HEAD -- $SLUG.php uninstall.php readme.txt includes assets languages | tar -x -C /tmp/fahad-build/$SLUG
 cd /tmp/fahad-build && zip -rq /Users/isupercoder/Code/github/_fahad-ai-builds/$SLUG-<version>.zip $SLUG
 ```
-The zip contains ONLY the runtime allow-list: the main plugin file, `uninstall.php`, `readme.txt`, `includes/`, `assets/`, `languages/`. Everything else in the repo is dev tooling and must not ship, WP.org's automated scanner rejects zips with application/dev files (it bounced 2.14.2 over `phpcs.xml.dist`, and the zip also carried `website/`, `e2e/`, `playwright.config.ts`, `package.json`). If a new runtime directory is ever added, extend the `git archive` pathspec here and in CLAUDE.md.
+The zip contains ONLY the runtime allow-list: the main plugin file, `uninstall.php`, `readme.txt`, `includes/`, `assets/`, `languages/`. Everything else in the repo is dev tooling and must not ship, WP.org's automated scanner rejects zips with application/dev files (it bounced 2.14.2 over `phpcs.xml.dist`, and the zip also carried `e2e/`, `playwright.config.ts`, `package.json`). If a new runtime directory is ever added, extend the `git archive` pathspec here and in CLAUDE.md.
 
 **Reviewer-reply pattern:** brief and direct (no AI fluff, reviewers flag it), bullet the categories addressed, request any slug change explicitly in both the email and the upload comment.

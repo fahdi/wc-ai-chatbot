@@ -48,7 +48,7 @@ jobs:
           python3 - <<'PY'
           import glob, sys
           pats = ['fahad-ai-shopping-assistant-for-woocommerce.php','uninstall.php','readme.txt',
-                  'includes/**/*.php','assets/**/*.js','assets/**/*.css','website/**/*.html','docs/**/*.md']
+                  'includes/**/*.php','assets/**/*.js','assets/**/*.css','docs/**/*.md']
           bad = []
           for pat in pats:
               for f in glob.glob(pat, recursive=True):
